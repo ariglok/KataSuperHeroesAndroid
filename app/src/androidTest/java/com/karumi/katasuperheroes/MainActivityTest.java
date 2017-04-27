@@ -18,6 +18,7 @@ package com.karumi.katasuperheroes;
 
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.NoMatchingViewException;
+import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.runner.AndroidJUnit4;
@@ -30,6 +31,8 @@ import com.karumi.katasuperheroes.model.SuperHero;
 import com.karumi.katasuperheroes.model.SuperHeroesRepository;
 import com.karumi.katasuperheroes.recyclerview.RecyclerViewInteraction;
 import com.karumi.katasuperheroes.ui.view.MainActivity;
+import com.karumi.katasuperheroes.ui.view.SuperHeroDetailActivity;
+
 import it.cosenonjaviste.daggermock.DaggerMockRule;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -41,7 +44,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.intent.Intents.intended;
+import static android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent;
+import static android.support.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
@@ -147,7 +154,24 @@ import static org.mockito.Mockito.when;
             });
   }
 
+  // Comprobar que en la pantlla siguiente se muestra la descripción del super heroe 2 al que hemos hecho tap
+  //givenThereAre10SuperHero InfotheScreen AdTapOntheSecondRow TheSecondSuperHeroeDetailIsShow
+  @Test public void showsSuperHeroeDescriptionRow2DetailIfThereAreTapRow2() {
+    List<SuperHero> superHeroes = givenThereAreSomeSuperHeroes(NUMBER_SUPER_HEROES);
 
+    int indexTapSuperHeroe = 2;
+
+    startActivity();
+
+    onView(withId(R.id.recycler_view)).
+            perform(RecyclerViewActions.actionOnItemAtPosition(indexTapSuperHeroe,click()));
+
+    SuperHero superHeroSelected = superHeroes.get(indexTapSuperHeroe);
+
+    intended(hasComponent(SuperHeroDetailActivity.class.getCanonicalName()));
+    intended(hasExtra("super_hero_name_key", superHeroSelected.getName()));
+
+  }
   private List<SuperHero> givenThereAreSomeSuperHeroes(int superHeroes) {
     return givenThereAreSomeSuperHeroes(superHeroes, false);
   }
