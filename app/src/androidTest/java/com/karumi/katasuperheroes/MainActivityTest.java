@@ -27,6 +27,9 @@ import com.karumi.katasuperheroes.model.SuperHeroesRepository;
 import com.karumi.katasuperheroes.ui.view.MainActivity;
 import it.cosenonjaviste.daggermock.DaggerMockRule;
 import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +38,9 @@ import org.mockito.Mock;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.CoreMatchers.not;
 import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class) @LargeTest public class MainActivityTest {
@@ -65,11 +70,50 @@ import static org.mockito.Mockito.when;
     onView(withText("¯\\_(ツ)_/¯")).check(matches(isDisplayed()));
   }
 
+  // Si hay super heroe al abrir la app no se muestra el emptycase
+  @Test public void doesNotShowsEmptyCaseIfThereAreNoSuperHeroes() {
+    givenThereAreSomeSuperHeroes(10, false);
+
+    startActivity();
+
+    onView(withText("¯\\_(ツ)_/¯")).check(matches(not(isDisplayed())));
+  }
+
   private void givenThereAreNoSuperHeroes() {
     when(repository.getAll()).thenReturn(Collections.<SuperHero>emptyList());
   }
 
+  // Si hay un SH cuando abro la app que muestre el nombre
+  @Test public void ShowsNameIfThereAreSuperHeroes() {
+    List<SuperHero> superHeroes = givenThereAreSomeSuperHeroes(1, false);
+
+    startActivity();
+
+    onView(withText(superHeroes.get(0).getName())).check(matches((isDisplayed())));
+  }
+
+  //
+
+  private List<SuperHero> givenThereAreSomeSuperHeroes(int superHeroes) {
+    return givenThereAreSomeSuperHeroes(superHeroes, false);
+  }
+
+
   private MainActivity startActivity() {
     return activityRule.launchActivity(null);
+  }
+  private List<SuperHero> givenThereAreSomeSuperHeroes(int numberOfSuperHeroes, boolean isAvenger) {
+    List<SuperHero> superHeroes = new LinkedList<>();
+    for (int i = 0; i < numberOfSuperHeroes; i++) {
+      String superHeroName = "SuperHero - " + i;
+      String superHeroPhoto = "https://i.annihil.us/u/prod/marvel/i/mg/c/60/55b6a28ef24fa.jpg";
+      String superHeroDescription = "Description Super Hero - " + i;
+      SuperHero superHero =
+              new SuperHero(superHeroName, superHeroPhoto, isAvenger,  superHeroDescription);
+      superHeroes.add(superHero);
+      when(repository.getByName(superHeroName)).thenReturn(superHero);
+    }
+    when(repository.getAll()).thenReturn(superHeroes);
+    return superHeroes;
   }
 }
