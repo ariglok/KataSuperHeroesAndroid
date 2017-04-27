@@ -147,6 +147,7 @@ import static org.mockito.Mockito.when;
             });
   }
 
+
   private List<SuperHero> givenThereAreSomeSuperHeroes(int superHeroes) {
     return givenThereAreSomeSuperHeroes(superHeroes, false);
   }
