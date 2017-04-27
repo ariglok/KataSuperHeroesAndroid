@@ -17,13 +17,17 @@
 package com.karumi.katasuperheroes;
 
 import android.support.test.InstrumentationRegistry;
+import android.support.test.espresso.NoMatchingViewException;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
+import android.view.View;
+
 import com.karumi.katasuperheroes.di.MainComponent;
 import com.karumi.katasuperheroes.di.MainModule;
 import com.karumi.katasuperheroes.model.SuperHero;
 import com.karumi.katasuperheroes.model.SuperHeroesRepository;
+import com.karumi.katasuperheroes.recyclerview.RecyclerViewInteraction;
 import com.karumi.katasuperheroes.ui.view.MainActivity;
 import it.cosenonjaviste.daggermock.DaggerMockRule;
 import java.util.Collections;
@@ -37,6 +41,7 @@ import org.mockito.Mock;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
@@ -44,6 +49,8 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class) @LargeTest public class MainActivityTest {
+
+  private static final int NUMBER_SUPER_HEROES = 10;
 
   @Rule public DaggerMockRule<MainComponent> daggerRule =
       new DaggerMockRule<>(MainComponent.class, new MainModule()).set(
@@ -92,7 +99,20 @@ import static org.mockito.Mockito.when;
     onView(withText(superHeroes.get(0).getName())).check(matches((isDisplayed())));
   }
 
-  //
+  //Si hay 10 superheroes cuando abro la app se muestran sus 10 nombres
+  @Test public void showsSuperHeroesNameIfThereAreSuperHeroes() {
+    List<SuperHero> misSuperHeroes = givenThereAreSomeSuperHeroes(NUMBER_SUPER_HEROES);
+
+    startActivity();
+
+    RecyclerViewInteraction.<SuperHero>onRecyclerView(withId(R.id.recycler_view))
+            .withItems(misSuperHeroes)
+            .check(new RecyclerViewInteraction.ItemViewAssertion<SuperHero>() {
+              @Override public void check(SuperHero superHero, View view, NoMatchingViewException e) {
+                matches(hasDescendant(withText(superHero.getName()))).check(view, e);
+              }
+            });
+  }
 
   private List<SuperHero> givenThereAreSomeSuperHeroes(int superHeroes) {
     return givenThereAreSomeSuperHeroes(superHeroes, false);
