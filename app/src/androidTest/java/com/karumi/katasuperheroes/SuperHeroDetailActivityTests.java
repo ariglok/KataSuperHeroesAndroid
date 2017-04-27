@@ -74,22 +74,31 @@ import static org.mockito.Mockito.when;
     }
   }
 
+  // Cuando abro el detalle el nombre se muestra como titulo
   @Test public void showsSuperHeroNameAsToolbarTitle() {
-  }
+    SuperHero superHero = givenThereIsASuperHero();
 
-  @Test public void hidesProgressBarOnSuperHeroLoaded() {
+    startActivity(superHero);
+
+    onToolbarWithTitle(superHero.getName()).check(matches(isDisplayed()));
   }
 
   @Test public void showsSuperHeroName() {
+    SuperHero superHero = givenThereIsASuperHero();
+
+    startActivity(superHero);
+
+    onView(allOf(withId(R.id.tv_super_hero_name), withText(superHero.getName()))).check(
+            matches(isDisplayed()));
   }
 
   @Test public void showsSuperHeroDescription() {
-  }
+    SuperHero superHero = givenThereIsASuperHero();
 
-  @Test public void doesNotShowAvengersBadgeIfSuperHeroIsNotPartOfTheAvengersTeam() {
-  }
+    startActivity(superHero);
 
-  @Test public void showsAvengersBadgeIfSuperHeroIsPartOfTheAvengersTeam() {
+    onView(allOf(withId(R.id.tv_super_hero_description), withText(superHero.getDescription()))).check(
+            matches(isDisplayed()));
   }
 
   private SuperHero givenThereIsASuperHero() {
