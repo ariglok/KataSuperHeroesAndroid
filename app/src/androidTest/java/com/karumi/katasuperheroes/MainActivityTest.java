@@ -19,6 +19,7 @@ package com.karumi.katasuperheroes;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.NoMatchingViewException;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
+import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.view.View;
@@ -43,9 +44,11 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.core.AllOf.allOf;
 import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class) @LargeTest public class MainActivityTest {
@@ -114,10 +117,43 @@ import static org.mockito.Mockito.when;
             });
   }
 
+  //Si los super heroes son vengadores se tiene que mostrar la imagen iv_avengers_badge
+  @Test public void showsSuperHeroesAvengerIfThereAreSuperHeroes() {
+    List<SuperHero> superHeroes = givenThereAreSomeSuperHeroesAvenger(NUMBER_SUPER_HEROES);
+
+    startActivity();
+
+    RecyclerViewInteraction.<SuperHero>onRecyclerView(withId(R.id.recycler_view))
+            .withItems(superHeroes)
+            .check(new RecyclerViewInteraction.ItemViewAssertion<SuperHero>() {
+              @Override public void check(SuperHero superHero, View view, NoMatchingViewException e) {
+                matches(hasDescendant(allOf(withId(R.id.iv_avengers_badge),withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))).check(view,e);
+              }
+            });
+  }
+
+  //Si los super heroes NO son vengadores se tiene que mostrar la imagen iv_avengers_badge
+  @Test public void showsSuperHeroesNOAvengerIfThereAreSuperHeroes() {
+    List<SuperHero> superHeroes = givenThereAreSomeSuperHeroes(NUMBER_SUPER_HEROES);
+
+    startActivity();
+
+    RecyclerViewInteraction.<SuperHero>onRecyclerView(withId(R.id.recycler_view))
+            .withItems(superHeroes)
+            .check(new RecyclerViewInteraction.ItemViewAssertion<SuperHero>() {
+              @Override public void check(SuperHero superHero, View view, NoMatchingViewException e) {
+                matches(hasDescendant(allOf(withId(R.id.iv_avengers_badge),withEffectiveVisibility(ViewMatchers.Visibility.GONE)))).check(view,e);
+              }
+            });
+  }
+
   private List<SuperHero> givenThereAreSomeSuperHeroes(int superHeroes) {
     return givenThereAreSomeSuperHeroes(superHeroes, false);
   }
 
+  private List<SuperHero> givenThereAreSomeSuperHeroesAvenger(int superHeroes) {
+    return givenThereAreSomeSuperHeroes(superHeroes, true);
+  }
 
   private MainActivity startActivity() {
     return activityRule.launchActivity(null);
