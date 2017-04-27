@@ -168,6 +168,7 @@ import static org.mockito.Mockito.when;
 
     SuperHero superHeroSelected = superHeroes.get(indexTapSuperHeroe);
 
+    // Comprobamso que el intente se a lanzado sobre el Activity indicado y que contiene un extra "super_hero_name_key" y que conincide con el nombre seleccionado
     intended(hasComponent(SuperHeroDetailActivity.class.getCanonicalName()));
     intended(hasExtra("super_hero_name_key", superHeroSelected.getName()));
 
